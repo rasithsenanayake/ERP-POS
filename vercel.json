@@ -3,7 +3,8 @@
   "services": {
     "api": {
       "root": "apps/api",
-      "framework": "nestjs"
+      "runtime": "container",
+      "entrypoint": "Dockerfile"
     },
     "web": {
       "root": "apps/web",

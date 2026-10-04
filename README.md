@@ -51,7 +51,7 @@ The previous Supabase workspace is not imported automatically. Existing Supabase
 
 ## Deploy to Vercel with Services
 
-The repository includes a root `vercel.json` that deploys `apps/web` and `apps/api` in one Vercel Services project. Set the Vercel project's framework preset to **Services** and its root directory to the repository root. The `web` service is the only public service; it receives all paths and forwards `/api/*` requests to the internal `api` service using the `API_SERVICE_URL` service binding. Vercel injects that binding at runtime; do not add `API_SERVICE_URL` in Vercel's environment settings.
+The repository includes a root `vercel.json` that deploys `apps/web` and `apps/api` in one Vercel Services project. Set the Vercel project's framework preset to **Services** and its root directory to the repository root. The `api` service runs from its Dockerfile so its runtime dependencies ship with the service; its image listens on Vercel's default port 80, while Compose sets the API port to 3001. The `web` service is the only public service; it receives all paths and forwards `/api/*` requests to the internal `api` service using the `API_SERVICE_URL` service binding. Vercel injects that binding at runtime; do not add `API_SERVICE_URL` in Vercel's environment settings.
 
 Set these environment variables for the Vercel deployment: `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, and `JWT_SECRET` (at least 32 characters). Set `COOKIE_SECURE=true`; set `DATABASE_SSL=true` when the PostgreSQL endpoint requires TLS.
 
