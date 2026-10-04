@@ -26,6 +26,7 @@ services:
       DATABASE_NAME: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
       DATABASE_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
     depends_on:
@@ -41,12 +42,11 @@ services:
   web:
     build:
       context: ./apps/web
-      args:
-        API_INTERNAL_URL: http://api:3001
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 3000
+      API_SERVICE_URL: http://api:3001
     ports:
       - "${WEB_PORT:-3000}:3000"
     depends_on:

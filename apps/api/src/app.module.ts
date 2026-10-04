@@ -16,6 +16,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['../../.env', '.env'] }),
     TypeOrmModule.forRoot({
       type: 'postgres',
+      ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: true } : undefined,
       host: process.env.DATABASE_HOST ?? 'localhost',
       port: Number(process.env.DATABASE_PORT ?? 5432),
       username: process.env.DATABASE_USER,
