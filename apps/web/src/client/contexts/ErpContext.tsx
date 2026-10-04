@@ -1,6 +1,5 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { BootScreen } from '../components/layout/BootScreen';
 import type { Product, Variant } from '../types/catalog';
 import type { ErpState } from '../types/erp';
 import type { Branch, Company, ModuleKey, Permission, PreviewRole, Role, User, Warehouse } from '../types/org';
@@ -102,14 +101,14 @@ interface ErpValue {
 const ErpContext = createContext<ErpValue | null>(null);
 
 export function ErpProvider({ children, previewRole }: {children: ReactNode;previewRole: PreviewRole;}) {
-  const { store, mode, account, signOut } = useBackend();
+  const { store } = useBackend();
   const origin = useRef(createId('erp')).current;
   const [state, setState] = useState<ErpState>(() => hydrateErpState(store));
   const stateRef = useRef(state);
   stateRef.current = state;
   const [branchSelection, setBranchSelection] = useState('all');
 
-  // Apply workspace updates received from the server.
+  // Keep state slices in sync with other client-side features in this session.
   useEffect(
     () =>
     store.subscribe((key, value, from) => {
@@ -135,58 +134,10 @@ export function ErpProvider({ children, previewRole }: {children: ReactNode;prev
     [store, origin]
   );
 
-  const cloudUser = useMemo(() => {
-    if (mode !== 'server' || !account) return null;
-    return state.users.find((u) => u.email.toLowerCase() === account.email.toLowerCase()) ?? null;
-  }, [mode, account, state.users]);
-
-  // First sign-in to a workspace: add the person to the team with the role from their membership.
-  useEffect(() => {
-    if (mode !== 'server' || !account) return;
-    const current = stateRef.current;
-    const existing = current.users.find((u) => u.email.toLowerCase() === account.email.toLowerCase());
-    if (existing) {
-      if (existing.invited) commit({ ...current, users: current.users.map((u) => u.id === existing.id ? { ...u, invited: false } : u) });
-      return;
-    }
-    const local = account.email.split('@')[0] ?? 'Teammate';
-    const name = local.
-    split(/[._-]+/).
-    filter(Boolean).
-    map((p) => p[0]!.toUpperCase() + p.slice(1)).
-    join(' ');
-    const roleName = current.roles.find((r) => r.key === account.role)?.name ?? 'Member';
-    const user: User = {
-      id: `u-${account.userId.slice(0, 8)}`,
-      name,
-      initials: name.split(' ').slice(0, 2).map((p) => p[0]).join('').toUpperCase(),
-      email: account.email.toLowerCase(),
-      role: account.role,
-      branchId: account.branchId,
-      title: roleName,
-      kind: 'person',
-      active: true
-    };
-    commit({ ...current, users: [...current.users, user] });
-  }, [mode, account, commit]);
-
-  const user = useMemo(() => {
-    if (mode === 'server' && account) {
-      return (
-        cloudUser ?? {
-          id: `u-${account.userId.slice(0, 8)}`,
-          name: account.email,
-          initials: account.email.slice(0, 2).toUpperCase(),
-          email: account.email,
-          role: account.role,
-          branchId: account.branchId,
-          title: '',
-          kind: 'person' as const
-        });
-
-    }
-    return state.users.find((u) => u.id === PREVIEW_USERS[previewRole]) ?? state.users[0]!;
-  }, [mode, account, cloudUser, state.users, previewRole]);
+  const user = useMemo(
+    () => state.users.find((u) => u.id === PREVIEW_USERS[previewRole]) ?? state.users[0]!,
+    [state.users, previewRole]
+  );
   const role = useMemo(() => state.roles.find((r) => r.key === user.role) ?? state.roles[0]!, [state.roles, user]);
 
   useEffect(() => setBranchSelection('all'), [previewRole]);
@@ -308,10 +259,6 @@ export function ErpProvider({ children, previewRole }: {children: ReactNode;prev
     () => ({ state, user, role, can, branchSelection, setBranchSelection, branchId, lookups, scoped, isModuleOn, actions }),
     [state, user, role, can, branchSelection, branchId, lookups, scoped, isModuleOn, actions]
   );
-
-  if (mode === 'server' && cloudUser?.active === false) {
-    return <BootScreen label="Your access to this workspace is turned off" error="An owner deactivated your account. Ask them to reactivate it if you still need access." onSignOut={() => void signOut()} />;
-  }
 
   return <ErpContext.Provider value={value}>{children}</ErpContext.Provider>;
 }

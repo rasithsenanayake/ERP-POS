@@ -84,6 +84,10 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <OfflineBanner />
         <TopBar />
+        <div className="no-print flex items-center justify-center gap-2 border-b border-line bg-surface px-4 py-1.5 text-xs text-muted" role="note">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
+          Prototype preview · changes stay in this browser session
+        </div>
         <main className="flex-1 px-4 py-5 md:px-6 md:py-6 lg:px-8">
           <div className="mx-auto w-full max-w-[1320px]">
             <ErrorBoundary resetKey={location.pathname}>

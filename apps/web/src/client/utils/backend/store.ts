@@ -12,7 +12,7 @@ export interface StoreStatus {
 export type StoreListener = (key: string, value: unknown, origin?: string) => void;
 
 export interface DataStore {
-  kind: 'server';
+  kind: 'session' | 'server';
   peek<T>(key: string): T | undefined;
   keys(): string[];
   set(key: string, value: unknown, origin?: string): void;
@@ -161,4 +161,68 @@ export async function createServerStore(): Promise<DataStore> {
   const documents = await apiRequest<ServerDocument[]>('/workspace/documents');
   const initial = Object.fromEntries(documents.map(({ key, data }) => [key, data]));
   return createStore(initial, () => undefined);
+}
+
+const SESSION_STORAGE_KEY = 'erp-pos:prototype-session:v1';
+
+/** Browser-only store for the hosted feature showcase. Data ends with this tab's session. */
+export function createSessionStore(): DataStore {
+  let initial: Record<string, unknown> = {};
+  try {
+    const saved = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (saved) {
+      const parsed: unknown = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        initial = parsed as Record<string, unknown>;
+      }
+    }
+  } catch {
+    // If browser storage is unavailable or invalid, keep the demo usable in memory.
+  }
+
+  const cache = new Map(Object.entries(initial));
+  const listeners = new Set<StoreListener>();
+  const statusListeners = new Set<(status: StoreStatus) => void>();
+  let current: StoreStatus = { state: 'saved', pending: 0 };
+
+  const setStatus = (state: SaveState, message?: string) => {
+    current = { state, message, pending: 0, lastSavedAt: current.lastSavedAt };
+    statusListeners.forEach((listener) => listener(current));
+  };
+
+  const flush = async () => {
+    try {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(Object.fromEntries(cache)));
+      setStatus('saved', undefined);
+    } catch {
+      setStatus('error', 'Changes could not be saved in this browser session.');
+    }
+  };
+
+  return {
+    kind: 'session',
+    peek: <T,>(key: string) => cache.get(key) as T | undefined,
+    keys: () => Array.from(cache.keys()),
+    set(key, value, origin) {
+      cache.set(key, value);
+      listeners.forEach((listener) => listener(key, value, origin));
+      void flush();
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    status: () => current,
+    onStatus(listener) {
+      statusListeners.add(listener);
+      return () => statusListeners.delete(listener);
+    },
+    flush,
+    async clearAll() {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      cache.clear();
+      setStatus('saved', undefined);
+    },
+    dispose() {}
+  };
 }

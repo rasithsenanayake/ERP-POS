@@ -22,6 +22,18 @@ export function SyncStatus() {
     return () => clearTimeout(t);
   }, [status.state]);
 
+  if (store.kind === 'session' && status.state !== 'error') {
+    return (
+      <span
+        className="hidden h-7 items-center gap-1.5 px-1.5 text-xs text-muted sm:inline-flex"
+        title="Demo changes stay in this browser tab's session."
+        role="status">
+        <DatabaseIcon className="h-3.5 w-3.5" aria-hidden />
+        Session only
+      </span>
+    );
+  }
+
   if (status.state === 'error' || status.state === 'offline') {
     const offline = status.state === 'offline';
     return (

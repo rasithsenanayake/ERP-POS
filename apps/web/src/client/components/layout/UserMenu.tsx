@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DatabaseIcon, HistoryIcon, LogOutIcon, SettingsIcon, UsersIcon } from 'lucide-react';
+import { DatabaseIcon, HistoryIcon, SettingsIcon, UsersIcon } from 'lucide-react';
 import { useBackend } from '../../contexts/BackendContext';
 import { useErp } from '../../contexts/ErpContext';
 import { scopeLabels } from '../../utils/permissions';
@@ -18,7 +18,7 @@ const shortcuts: [string, string][] = [
 
 export function UserMenu() {
   const { user, role, can } = useErp();
-  const { account, signOut } = useBackend();
+  const { account } = useBackend();
   const navigate = useNavigate();
 
   const go = (path: string, close: () => void) => {
@@ -54,7 +54,7 @@ export function UserMenu() {
             <Badge tone="outline">{scopeLabels[role.scope]}</Badge>
           </div>
           <MenuSeparator />
-          <MenuItem icon={DatabaseIcon} onClick={() => go('/settings/data', close)} hint="Server">
+          <MenuItem icon={DatabaseIcon} onClick={() => go('/settings/data', close)} hint="Session only">
             {account.workspaceName}
           </MenuItem>
           {can('team.manage') &&
@@ -70,15 +70,6 @@ export function UserMenu() {
           <MenuItem icon={SettingsIcon} onClick={() => go('/settings', close)}>
             Settings
           </MenuItem>
-          <MenuItem
-          icon={LogOutIcon}
-          onClick={() => {
-            close();
-            void signOut();
-          }}>
-          
-              Sign out
-            </MenuItem>
           <MenuSeparator />
           <MenuLabel>Keyboard shortcuts</MenuLabel>
           <dl className="px-2 pb-1.5">

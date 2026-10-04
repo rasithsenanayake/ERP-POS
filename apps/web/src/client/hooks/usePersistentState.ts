@@ -5,8 +5,7 @@ import { createId } from '../utils/ids';
 type Updater<T> = T | ((prev: T) => T);
 
 /**
- * State that is saved to the shared workspace on the server,
- * survives navigation and refresh, and updates live when a teammate changes it.
+ * State that survives navigation and refresh in the current browser session.
  */
 export function usePersistentState<T>(key: string, seed: T | (() => T)): [T, (next: Updater<T>) => void] {
   const { store } = useBackend();

@@ -1,6 +1,6 @@
 # ERP & POS
 
-A self-hosted business management app with a Next.js frontend, NestJS API, and PostgreSQL database.
+A retail ERP/POS feature showcase built with a Next.js frontend, NestJS API, and PostgreSQL scaffold. The hosted prototype opens with sample data and keeps changes in the current browser session. The API and database are available for a later connected version.
 
 ## Run the stack
 
@@ -12,9 +12,9 @@ A self-hosted business management app with a Next.js frontend, NestJS API, and P
    docker compose up --build -d
    ```
 
-4. Open `http://localhost:3000` and create the first account. It becomes the workspace owner. The app seeds sample ERP data for a new workspace.
+4. Open `http://localhost:3000` to explore the sample workspace. The current UI does not require the API or PostgreSQL; its changes stay in the current browser session.
 
-The web container is the only public service. NestJS and PostgreSQL stay on the private Docker network; PostgreSQL has no published host port. The named `postgres_data` volume keeps database files across container rebuilds and `docker compose down`.
+The web container is the only public service. NestJS and PostgreSQL stay on the private Docker network; PostgreSQL has no published host port. The named `postgres_data` volume keeps database files across container rebuilds and `docker compose down`. The API and database are scaffolded for self-hosting, but the showcase UI currently runs client-side.
 
 ## Run services in development
 
@@ -51,8 +51,6 @@ The previous Supabase workspace is not imported automatically. Existing Supabase
 
 ## Deploy to Vercel with Services
 
-The repository includes a root `vercel.json` that deploys `apps/web` and `apps/api` in one Vercel Services project. Set the Vercel project's framework preset to **Services** and its root directory to the repository root. The `api` service runs from its Dockerfile so its runtime dependencies ship with the service; its image listens on Vercel's default port 80, while Compose sets the API port to 3001. The `web` service is the only public service; it receives all paths and forwards `/api/*` requests to the internal `api` service using the `API_SERVICE_URL` service binding. Vercel injects that binding at runtime; do not add `API_SERVICE_URL` in Vercel's environment settings.
+The repository includes a root `vercel.json` that deploys `apps/web` and `apps/api` in one Vercel Services project. Set the Vercel project's framework preset to **Services** and its root directory to the repository root. The `api` service runs from its Dockerfile; the `web` service is public, and its server-side `/api/*` proxy can reach the internal API through the `API_SERVICE_URL` binding. Vercel injects that binding at runtime; do not add it to Vercel's environment settings.
 
-Set these environment variables for the Vercel deployment: `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, and `JWT_SECRET` (at least 32 characters). Set `COOKIE_SECURE=true`; set `DATABASE_SSL=true` when the PostgreSQL endpoint requires TLS.
-
-The Vercel API cannot use the Compose hostname `db`. The current PostgreSQL container is private to the VPS Docker network and its port is not published, so it is not reachable from Vercel as configured. Before using this Vercel deployment, provide a secure Vercel-to-database network route or use a managed PostgreSQL service, then set the API's database environment variables to that reachable endpoint. Vercel Services are currently in beta; see the [Services guide](https://vercel.com/docs/services).
+The current showcase UI does not call the API, so the prototype deployment needs no database or API credentials. A connected deployment will need `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, and a `JWT_SECRET` of at least 32 characters. Set `COOKIE_SECURE=true`; set `DATABASE_SSL=true` when the PostgreSQL endpoint requires TLS. The Compose database is private to the VPS network and is not reachable from Vercel by default. See the [Vercel Services guide](https://vercel.com/docs/services) for service configuration.

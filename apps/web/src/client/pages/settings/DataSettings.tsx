@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DatabaseIcon, DownloadIcon, LogOutIcon, RotateCcwIcon } from 'lucide-react';
+import { DatabaseIcon, DownloadIcon, RotateCcwIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -10,7 +10,7 @@ import { useBackend } from '../../contexts/BackendContext';
 import { useErp } from '../../contexts/ErpContext';
 
 export function DataSettings() {
-  const { store, account, signOut } = useBackend();
+  const { store, account } = useBackend();
   const { can, state } = useErp();
   const canManage = can('settings.manage');
   const [confirmReset, setConfirmReset] = useState(false);
@@ -45,7 +45,7 @@ export function DataSettings() {
 
   return (
     <div>
-      <PageHeader title="Data & backend" meta="Workspace storage, backups, and account access." />
+      <PageHeader title="Prototype data" meta="Demo changes stay in this browser tab's session." />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <div className="space-y-6">
@@ -56,31 +56,27 @@ export function DataSettings() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-sm font-semibold text-ink">PostgreSQL workspace</h2>
-                  <Badge tone="positive" dot>Connected</Badge>
+                  <h2 className="text-sm font-semibold text-ink">Browser session</h2>
+                  <Badge tone="outline" dot>Prototype</Badge>
                 </div>
                 <p className="mt-1 text-[13px] leading-relaxed text-muted">
-                  “{account.workspaceName}” is stored on the private workspace server and shared with its members.
+                  “{account.workspaceName}” uses sample data saved in this browser session. It is not shared with other people.
                 </p>
-                <p className="mt-2 text-xs text-subtle">Signed in as {account.email}</p>
               </div>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
-              <Button icon={LogOutIcon} onClick={() => void signOut()}>Sign out</Button>
             </div>
           </Panel>
 
           {canManage && (
-            <Panel title="Reset workspace" description="Deletes the current workspace data for everyone. Fresh sample data is created after reload.">
+            <Panel title="Reset demo data" description="Restore the starter sample data in this browser session. This does not affect anyone else's demo.">
               <Button variant="danger" icon={RotateCcwIcon} onClick={() => setConfirmReset(true)}>
-                Reset workspace data
+                Reset demo data
               </Button>
             </Panel>
           )}
         </div>
 
         <div className="space-y-6">
-          <Panel title="Backup" description="Download a JSON copy of this workspace before making major changes.">
+          <Panel title="Backup" description="Download a JSON copy of the current demo session.">
             <dl className="mb-4 grid grid-cols-3 gap-3 text-[13px]">
               <div>
                 <dt className="text-xs text-muted">Orders</dt>
@@ -102,9 +98,9 @@ export function DataSettings() {
 
       <ConfirmationDialog
         open={confirmReset}
-        title="Reset this workspace for everyone?"
-        description="All orders, customers, stock, and module data will be deleted and replaced with fresh sample data. Download a backup first if you may need it."
-        confirmLabel={busy ? 'Resetting…' : 'Reset everything'}
+        title="Reset demo data in this browser session?"
+        description="Your changes in this session will be cleared and replaced with fresh sample data. Download a backup first if you may need it."
+        confirmLabel={busy ? 'Resetting…' : 'Reset demo data'}
         confirmDisabled={busy}
         onCancel={() => setConfirmReset(false)}
         onConfirm={() => void resetWorkspace()} />

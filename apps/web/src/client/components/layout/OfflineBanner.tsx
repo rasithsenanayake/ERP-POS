@@ -19,7 +19,7 @@ export function OfflineBanner() {
   return (
     <div className="no-print flex items-center justify-center gap-2 bg-warning-soft px-4 py-1.5 text-xs font-medium text-warning" role="status">
       <WifiOffIcon className="h-3.5 w-3.5" aria-hidden />
-      You're offline. You can keep working — changes save automatically when you reconnect.
+      You're offline. Demo changes stay in this browser session.
     </div>);
 
 }

@@ -7,7 +7,7 @@ const items = [
 { to: '/settings/company', label: 'Company & branches' },
 { to: '/settings/team', label: 'Team & roles' },
 { to: '/settings/modules', label: 'Modules' },
-{ to: '/settings/data', label: 'Data & backend' },
+{ to: '/settings/data', label: 'Prototype data' },
 { to: '/settings/audit', label: 'Audit log', permission: 'audit.view' as const }];
 
 
