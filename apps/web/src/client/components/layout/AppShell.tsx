@@ -89,7 +89,7 @@ export function AppShell() {
           Prototype preview · changes stay in this browser session
         </div>
         <main className="flex-1 px-4 py-5 md:px-6 md:py-6 lg:px-8">
-          <div className="mx-auto w-full max-w-[1320px]">
+          <div className="mx-auto w-full max-w-[1600px]">
             <ErrorBoundary resetKey={location.pathname}>
               <Suspense fallback={<PageSkeleton />}>
                 <Outlet />
