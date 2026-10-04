@@ -1,0 +1,11 @@
+{
+  "name": "erp-pos",
+  "private": true,
+  "scripts": {
+    "install:apps": "npm install --prefix apps/web && npm install --prefix apps/api",
+    "dev:web": "npm run dev --prefix apps/web",
+    "dev:api": "npm run start:dev --prefix apps/api",
+    "build:web": "npm run build --prefix apps/web",
+    "build:api": "npm run build --prefix apps/api"
+  }
+}
