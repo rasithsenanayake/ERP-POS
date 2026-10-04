@@ -179,7 +179,7 @@ export function Sidebar({ collapsed, onNavigate, showCollapseToggle = true }: Si
           {!collapsed && <span>Settings</span>}
         </NavLink>
         {showCollapseToggle &&
-        <button type="button" onClick={() => setSidebarCollapsed(!collapsed)} className={itemClass(false)} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+        <button type="button" onClick={() => setSidebarCollapsed(!collapsed)} className={cn(itemClass(false), 'w-full')} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
             {collapsed ? <PanelLeftOpenIcon className="h-4 w-4 shrink-0" /> : <PanelLeftCloseIcon className="h-4 w-4 shrink-0" />}
             {!collapsed && <span>Collapse</span>}
           </button>
